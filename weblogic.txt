@@ -1,0 +1,138 @@
+/*
+Web logic
+    - A Multipurpose code
+*/
+--Table creation
+CREATE TABLE customers(name varchar2(20),lname varchar2(20),uname varchar2(20),email varchar2(20),pnumber number(10),pwd varchar2(20),cpwd varchar2(20),gender varchar2(20));
+
+CREATE TABLE employe(name varchar2(20),mailid varchar2(20),pwd varchar2(20),salary number(10));
+
+CREATE TABLE admin(name varchar2(10),mailid varchar2(20),pwd varchar2(20));
+
+
+--Procedure for registration 
+Create or Replace Procedure register(name_in in varchar2,lname_in in varchar2,uname_in in varchar2,email_in in varchar2,pnumber_in in number,
+			pwd_in in varchar2,cpwd_in in varchar2,gender_in in varchar2,msg out varchar2) 
+AS
+Begin
+   insert into customers values(name_in,lname_in,uname_in,email_in,pnumber_in,pwd_in,cpwd_in,gender_in);
+   IF(pwd_in=cpwd_in) THEN
+   	msg:='Registration completed';
+   ELSE
+      msg:='Password and Confirm password should be same';
+   End IF;
+End register;
+/
+
+--Procedure for login
+Create or Replace Procedure loggin
+               (email_in  in varchar2,
+                pwd_in    in varchar2,
+		    msg    out varchar2)
+AS
+	pwd_exception EXCEPTION;
+	current_pwd varchar2(10);
+Begin 
+	SELECT pwd into current_pwd FROM customer WHERE email=email_in;
+      IF(current_pwd!=pwd_in) THEN
+		RAISE pwd_exception;
+      ELSE
+		msg:='Login Succesfully';
+	END IF;
+	EXCEPTION
+		WHEN pwd_exception THEN
+			dbms_output.put_line('PASSWORD IS INCORRECT');
+End loggin;
+/
+
+--Procedure for fetch the total records
+Create or Replace Procedure rfetch
+AS
+   fet varchar2(20);
+Begin
+	SELECT name INTO fet from employe where salary>10000 ;
+	dbms_output.put_line(fet);
+End rfetch;
+/
+
+--Remove an employ 
+Create or Replace Procedure remp(email_in varchar)
+AS
+Begin
+	DELETE from employe where mailid=email_in;
+      dbms_output.put_line(email_in||'Employee detailes are removed');
+End remp;
+/
+
+
+--Procedure for Admin login
+Create or Replace Procedure adminlogin(email_in varchar2,pwd_in varchar2)
+AS
+	current_pwd varchar2(20);
+Begin
+     SELECT pwd into current_pwd from admin where mailid=email_in;
+     IF(pwd_in=current_pwd) THEN
+		dbms_output.put_line('Admin can login successfully');
+     ELSE 
+            dbms_output.put_line('Check your mail id and password');
+     END IF;
+End adminlogin;
+/
+
+
+--Procedure to update password
+Create or Replace Procedure updated(email_in varchar2,pwd_in varchar2)
+AS
+Begin
+	UPDATE customer SET pwd=pwd_in where email=email_in;
+	dbms_output.put_line('Password updated successfully');
+End updated;
+/
+
+--Trigger for update salary
+Create or Replace Trigger saltrig Before update on employe
+Begin
+	dbms_output.put_line(:pwd||'changed to new password'|| :pwd); 
+End;
+/  
+
+--Function to get the total no of customers count
+Create or Replace Function totalCustomers 
+Return number IS 
+   total number(10) := 0; 
+Begin
+   SELECT count(*) into total FROM customer; 
+    
+   RETURN total; 
+End; 
+/ 
+
+--Function calling
+Declare
+   c number(10); 
+Begin 
+   c := totalCustomers(); 
+   dbms_output.put_line('Total no. of Customers: ' || c); 
+End; 
+/
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+	
+ 
